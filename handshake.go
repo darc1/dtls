@@ -21,7 +21,7 @@ const (
 	handshakeMessageHeaderLength = 12
 )
 
-type handshakeMessage interface {
+type HandshakeMessage interface {
 	Marshal() ([]byte, error)
 	Unmarshal(data []byte) error
 
@@ -56,36 +56,36 @@ func (h handshakeType) String() string {
 	return ""
 }
 
-// The handshake protocol is responsible for selecting a cipher spec and
+// The Handshake protocol is responsible for selecting a cipher spec and
 // generating a master secret, which together comprise the primary
 // cryptographic parameters associated with a secure session.  The
-// handshake protocol can also optionally authenticate parties who have
+// Handshake protocol can also optionally authenticate parties who have
 // certificates signed by a trusted certificate authority.
 // https://tools.ietf.org/html/rfc5246#section-7.3
-type handshake struct {
+type Handshake struct {
 	handshakeHeader  handshakeHeader
-	handshakeMessage handshakeMessage
+	HandshakeMessage HandshakeMessage
 }
 
-func (h handshake) contentType() contentType {
+func (h Handshake) contentType() contentType {
 	return contentTypeHandshake
 }
 
-func (h *handshake) Marshal() ([]byte, error) {
-	if h.handshakeMessage == nil {
+func (h *Handshake) Marshal() ([]byte, error) {
+	if h.HandshakeMessage == nil {
 		return nil, errHandshakeMessageUnset
 	} else if h.handshakeHeader.fragmentOffset != 0 {
 		return nil, errUnableToMarshalFragmented
 	}
 
-	msg, err := h.handshakeMessage.Marshal()
+	msg, err := h.HandshakeMessage.Marshal()
 	if err != nil {
 		return nil, err
 	}
 
 	h.handshakeHeader.length = uint32(len(msg))
 	h.handshakeHeader.fragmentLength = h.handshakeHeader.length
-	h.handshakeHeader.handshakeType = h.handshakeMessage.handshakeType()
+	h.handshakeHeader.handshakeType = h.HandshakeMessage.handshakeType()
 	header, err := h.handshakeHeader.Marshal()
 	if err != nil {
 		return nil, err
@@ -94,7 +94,7 @@ func (h *handshake) Marshal() ([]byte, error) {
 	return append(header, msg...), nil
 }
 
-func (h *handshake) Unmarshal(data []byte) error {
+func (h *Handshake) Unmarshal(data []byte) error {
 	if err := h.handshakeHeader.Unmarshal(data); err != nil {
 		return err
 	}
@@ -110,27 +110,27 @@ func (h *handshake) Unmarshal(data []byte) error {
 	case handshakeTypeHelloRequest:
 		return errNotImplemented
 	case handshakeTypeClientHello:
-		h.handshakeMessage = &handshakeMessageClientHello{}
+		h.HandshakeMessage = &HandshakeMessageClientHello{}
 	case handshakeTypeHelloVerifyRequest:
-		h.handshakeMessage = &handshakeMessageHelloVerifyRequest{}
+		h.HandshakeMessage = &handshakeMessageHelloVerifyRequest{}
 	case handshakeTypeServerHello:
-		h.handshakeMessage = &handshakeMessageServerHello{}
+		h.HandshakeMessage = &handshakeMessageServerHello{}
 	case handshakeTypeCertificate:
-		h.handshakeMessage = &handshakeMessageCertificate{}
+		h.HandshakeMessage = &handshakeMessageCertificate{}
 	case handshakeTypeServerKeyExchange:
-		h.handshakeMessage = &handshakeMessageServerKeyExchange{}
+		h.HandshakeMessage = &handshakeMessageServerKeyExchange{}
 	case handshakeTypeCertificateRequest:
-		h.handshakeMessage = &handshakeMessageCertificateRequest{}
+		h.HandshakeMessage = &handshakeMessageCertificateRequest{}
 	case handshakeTypeServerHelloDone:
-		h.handshakeMessage = &handshakeMessageServerHelloDone{}
+		h.HandshakeMessage = &handshakeMessageServerHelloDone{}
 	case handshakeTypeClientKeyExchange:
-		h.handshakeMessage = &handshakeMessageClientKeyExchange{}
+		h.HandshakeMessage = &handshakeMessageClientKeyExchange{}
 	case handshakeTypeFinished:
-		h.handshakeMessage = &handshakeMessageFinished{}
+		h.HandshakeMessage = &handshakeMessageFinished{}
 	case handshakeTypeCertificateVerify:
-		h.handshakeMessage = &handshakeMessageCertificateVerify{}
+		h.HandshakeMessage = &handshakeMessageCertificateVerify{}
 	default:
 		return errNotImplemented
 	}
-	return h.handshakeMessage.Unmarshal(data[handshakeMessageHeaderLength:])
+	return h.HandshakeMessage.Unmarshal(data[handshakeMessageHeaderLength:])
 }

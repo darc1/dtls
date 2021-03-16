@@ -16,10 +16,10 @@ func flight2Parse(ctx context.Context, c flightConn, state *State, cache *handsh
 	}
 	state.handshakeRecvSequence = seq
 
-	var clientHello *handshakeMessageClientHello
+	var clientHello *HandshakeMessageClientHello
 
 	// Validate type
-	if clientHello, ok = msgs[handshakeTypeClientHello].(*handshakeMessageClientHello); !ok {
+	if clientHello, ok = msgs[handshakeTypeClientHello].(*HandshakeMessageClientHello); !ok {
 		return 0, &alert{alertLevelFatal, alertInternalError}, nil
 	}
 
@@ -44,8 +44,8 @@ func flight2Generate(c flightConn, state *State, cache *handshakeCache, cfg *han
 				recordLayerHeader: recordLayerHeader{
 					protocolVersion: protocolVersion1_2,
 				},
-				content: &handshake{
-					handshakeMessage: &handshakeMessageHelloVerifyRequest{
+				content: &Handshake{
+					HandshakeMessage: &handshakeMessageHelloVerifyRequest{
 						version: protocolVersion1_2,
 						cookie:  state.cookie,
 					},

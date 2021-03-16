@@ -65,8 +65,8 @@ func flight5Generate(c flightConn, state *State, cache *handshakeCache, cfg *han
 					recordLayerHeader: recordLayerHeader{
 						protocolVersion: protocolVersion1_2,
 					},
-					content: &handshake{
-						handshakeMessage: &handshakeMessageCertificate{
+					content: &Handshake{
+						HandshakeMessage: &handshakeMessageCertificate{
 							certificate: certBytes,
 						},
 					},
@@ -87,8 +87,8 @@ func flight5Generate(c flightConn, state *State, cache *handshakeCache, cfg *han
 				recordLayerHeader: recordLayerHeader{
 					protocolVersion: protocolVersion1_2,
 				},
-				content: &handshake{
-					handshakeMessage: clientKeyExchange,
+				content: &Handshake{
+					HandshakeMessage: clientKeyExchange,
 				},
 			},
 		})
@@ -106,13 +106,13 @@ func flight5Generate(c flightConn, state *State, cache *handshakeCache, cfg *han
 			return nil, alertPtr, err
 		}
 	} else {
-		rawHandshake := &handshake{}
+		rawHandshake := &Handshake{}
 		err := rawHandshake.Unmarshal(serverKeyExchangeData)
 		if err != nil {
 			return nil, &alert{alertLevelFatal, alertUnexpectedMessage}, err
 		}
 
-		switch h := rawHandshake.handshakeMessage.(type) {
+		switch h := rawHandshake.HandshakeMessage.(type) {
 		case *handshakeMessageServerKeyExchange:
 			serverKeyExchange = h
 		default:
@@ -124,7 +124,7 @@ func flight5Generate(c flightConn, state *State, cache *handshakeCache, cfg *han
 	merged := []byte{}
 	seqPred := uint16(state.handshakeSendSequence)
 	for _, p := range pkts {
-		h, ok := p.record.content.(*handshake)
+		h, ok := p.record.content.(*Handshake)
 		if !ok {
 			return nil, &alert{alertLevelFatal, alertInternalError}, errInvalidContentType
 		}
@@ -173,8 +173,8 @@ func flight5Generate(c flightConn, state *State, cache *handshakeCache, cfg *han
 				recordLayerHeader: recordLayerHeader{
 					protocolVersion: protocolVersion1_2,
 				},
-				content: &handshake{
-					handshakeMessage: &handshakeMessageCertificateVerify{
+				content: &Handshake{
+					HandshakeMessage: &handshakeMessageCertificateVerify{
 						hashAlgorithm:      signatureHashAlgo.hash,
 						signatureAlgorithm: signatureHashAlgo.signature,
 						signature:          state.localCertificatesVerify,
@@ -184,7 +184,7 @@ func flight5Generate(c flightConn, state *State, cache *handshakeCache, cfg *han
 		}
 		pkts = append(pkts, p)
 
-		h, ok := p.record.content.(*handshake)
+		h, ok := p.record.content.(*Handshake)
 		if !ok {
 			return nil, &alert{alertLevelFatal, alertInternalError}, errInvalidContentType
 		}
@@ -235,8 +235,8 @@ func flight5Generate(c flightConn, state *State, cache *handshakeCache, cfg *han
 					protocolVersion: protocolVersion1_2,
 					epoch:           1,
 				},
-				content: &handshake{
-					handshakeMessage: &handshakeMessageFinished{
+				content: &Handshake{
+					HandshakeMessage: &handshakeMessageFinished{
 						verifyData: state.localVerifyData,
 					},
 				},

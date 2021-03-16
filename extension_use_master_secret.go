@@ -11,7 +11,7 @@ type extensionUseExtendedMasterSecret struct {
 	supported bool
 }
 
-func (e extensionUseExtendedMasterSecret) extensionValue() extensionValue {
+func (e extensionUseExtendedMasterSecret) ExtensionValue() ExtensionValue {
 	return extensionUseExtendedMasterSecretValue
 }
 
@@ -22,7 +22,7 @@ func (e *extensionUseExtendedMasterSecret) Marshal() ([]byte, error) {
 
 	out := make([]byte, extensionUseExtendedMasterSecretHeaderSize)
 
-	binary.BigEndian.PutUint16(out, uint16(e.extensionValue()))
+	binary.BigEndian.PutUint16(out, uint16(e.ExtensionValue()))
 	binary.BigEndian.PutUint16(out[2:], uint16(0)) // length
 	return out, nil
 }
@@ -30,7 +30,7 @@ func (e *extensionUseExtendedMasterSecret) Marshal() ([]byte, error) {
 func (e *extensionUseExtendedMasterSecret) Unmarshal(data []byte) error {
 	if len(data) < extensionUseExtendedMasterSecretHeaderSize {
 		return errBufferTooSmall
-	} else if extensionValue(binary.BigEndian.Uint16(data)) != e.extensionValue() {
+	} else if ExtensionValue(binary.BigEndian.Uint16(data)) != e.ExtensionValue() {
 		return errInvalidExtensionType
 	}
 

@@ -42,11 +42,11 @@ func TestHandshaker(t *testing.T) {
 			)
 			const helloVerifyDrop = 5
 			return func(p *packet) bool {
-					h, ok := p.record.content.(*handshake)
+					h, ok := p.record.content.(*Handshake)
 					if !ok {
 						return true
 					}
-					if hmch, ok := h.handshakeMessage.(*handshakeMessageClientHello); ok {
+					if hmch, ok := h.HandshakeMessage.(*HandshakeMessageClientHello); ok {
 						if len(hmch.cookie) == 0 {
 							cntClientHelloNoCookie++
 						}
@@ -54,11 +54,11 @@ func TestHandshaker(t *testing.T) {
 					return true
 				},
 				func(p *packet) bool {
-					h, ok := p.record.content.(*handshake)
+					h, ok := p.record.content.(*Handshake)
 					if !ok {
 						return true
 					}
-					if _, ok := h.handshakeMessage.(*handshakeMessageHelloVerifyRequest); ok {
+					if _, ok := h.HandshakeMessage.(*handshakeMessageHelloVerifyRequest); ok {
 						cntHelloVerifyRequest++
 						return cntHelloVerifyRequest > helloVerifyDrop
 					}
@@ -211,7 +211,7 @@ func (c *flightTestConn) writePackets(ctx context.Context, pkts []*packet) error
 		if c.filter != nil && !c.filter(p) {
 			continue
 		}
-		if h, ok := p.record.content.(*handshake); ok {
+		if h, ok := p.record.content.(*Handshake); ok {
 			handshakeRaw, err := p.record.Marshal()
 			if err != nil {
 				return err
@@ -219,7 +219,7 @@ func (c *flightTestConn) writePackets(ctx context.Context, pkts []*packet) error
 
 			c.handshakeCache.push(handshakeRaw[recordLayerHeaderSize:], p.record.recordLayerHeader.epoch, h.handshakeHeader.messageSequence, h.handshakeHeader.handshakeType, c.state.isClient)
 
-			content, err := h.handshakeMessage.Marshal()
+			content, err := h.HandshakeMessage.Marshal()
 			if err != nil {
 				return err
 			}

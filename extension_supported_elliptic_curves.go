@@ -13,14 +13,14 @@ type extensionSupportedEllipticCurves struct {
 	ellipticCurves []namedCurve
 }
 
-func (e extensionSupportedEllipticCurves) extensionValue() extensionValue {
+func (e extensionSupportedEllipticCurves) ExtensionValue() ExtensionValue {
 	return extensionSupportedEllipticCurvesValue
 }
 
 func (e *extensionSupportedEllipticCurves) Marshal() ([]byte, error) {
 	out := make([]byte, extensionSupportedGroupsHeaderSize)
 
-	binary.BigEndian.PutUint16(out, uint16(e.extensionValue()))
+	binary.BigEndian.PutUint16(out, uint16(e.ExtensionValue()))
 	binary.BigEndian.PutUint16(out[2:], uint16(2+(len(e.ellipticCurves)*2)))
 	binary.BigEndian.PutUint16(out[4:], uint16(len(e.ellipticCurves)*2))
 
@@ -35,7 +35,7 @@ func (e *extensionSupportedEllipticCurves) Marshal() ([]byte, error) {
 func (e *extensionSupportedEllipticCurves) Unmarshal(data []byte) error {
 	if len(data) <= extensionSupportedGroupsHeaderSize {
 		return errBufferTooSmall
-	} else if extensionValue(binary.BigEndian.Uint16(data)) != e.extensionValue() {
+	} else if ExtensionValue(binary.BigEndian.Uint16(data)) != e.ExtensionValue() {
 		return errInvalidExtensionType
 	}
 

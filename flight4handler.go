@@ -159,7 +159,7 @@ func flight4Parse(ctx context.Context, c flightConn, state *State, cache *handsh
 }
 
 func flight4Generate(c flightConn, state *State, cache *handshakeCache, cfg *handshakeConfig) ([]*packet, *alert, error) {
-	extensions := []extension{}
+	extensions := []Extension{}
 	if (cfg.extendedMasterSecret == RequestExtendedMasterSecret ||
 		cfg.extendedMasterSecret == RequireExtendedMasterSecret) && state.extendedMasterSecret {
 		extensions = append(extensions, &extensionUseExtendedMasterSecret{
@@ -172,7 +172,7 @@ func flight4Generate(c flightConn, state *State, cache *handshakeCache, cfg *han
 		})
 	}
 	if cfg.localPSKCallback == nil {
-		extensions = append(extensions, []extension{
+		extensions = append(extensions, []Extension{
 			&extensionSupportedEllipticCurves{
 				ellipticCurves: []namedCurve{namedCurveX25519, namedCurveP256, namedCurveP384},
 			},
@@ -189,8 +189,8 @@ func flight4Generate(c flightConn, state *State, cache *handshakeCache, cfg *han
 			recordLayerHeader: recordLayerHeader{
 				protocolVersion: protocolVersion1_2,
 			},
-			content: &handshake{
-				handshakeMessage: &handshakeMessageServerHello{
+			content: &Handshake{
+				HandshakeMessage: &handshakeMessageServerHello{
 					version:           protocolVersion1_2,
 					random:            state.localRandom,
 					cipherSuite:       state.cipherSuite,
@@ -212,8 +212,8 @@ func flight4Generate(c flightConn, state *State, cache *handshakeCache, cfg *han
 				recordLayerHeader: recordLayerHeader{
 					protocolVersion: protocolVersion1_2,
 				},
-				content: &handshake{
-					handshakeMessage: &handshakeMessageCertificate{
+				content: &Handshake{
+					HandshakeMessage: &handshakeMessageCertificate{
 						certificate: certificate.Certificate,
 					},
 				},
@@ -240,8 +240,8 @@ func flight4Generate(c flightConn, state *State, cache *handshakeCache, cfg *han
 				recordLayerHeader: recordLayerHeader{
 					protocolVersion: protocolVersion1_2,
 				},
-				content: &handshake{
-					handshakeMessage: &handshakeMessageServerKeyExchange{
+				content: &Handshake{
+					HandshakeMessage: &handshakeMessageServerKeyExchange{
 						ellipticCurveType:  ellipticCurveTypeNamedCurve,
 						namedCurve:         state.namedCurve,
 						publicKey:          state.localKeypair.publicKey,
@@ -259,8 +259,8 @@ func flight4Generate(c flightConn, state *State, cache *handshakeCache, cfg *han
 					recordLayerHeader: recordLayerHeader{
 						protocolVersion: protocolVersion1_2,
 					},
-					content: &handshake{
-						handshakeMessage: &handshakeMessageCertificateRequest{
+					content: &Handshake{
+						HandshakeMessage: &handshakeMessageCertificateRequest{
 							certificateTypes:        []clientCertificateType{clientCertificateTypeRSASign, clientCertificateTypeECDSASign},
 							signatureHashAlgorithms: cfg.localSignatureSchemes,
 						},
@@ -279,8 +279,8 @@ func flight4Generate(c flightConn, state *State, cache *handshakeCache, cfg *han
 				recordLayerHeader: recordLayerHeader{
 					protocolVersion: protocolVersion1_2,
 				},
-				content: &handshake{
-					handshakeMessage: &handshakeMessageServerKeyExchange{
+				content: &Handshake{
+					HandshakeMessage: &handshakeMessageServerKeyExchange{
 						identityHint: cfg.localPSKIdentityHint,
 					},
 				},
@@ -293,8 +293,8 @@ func flight4Generate(c flightConn, state *State, cache *handshakeCache, cfg *han
 			recordLayerHeader: recordLayerHeader{
 				protocolVersion: protocolVersion1_2,
 			},
-			content: &handshake{
-				handshakeMessage: &handshakeMessageServerHelloDone{},
+			content: &Handshake{
+				HandshakeMessage: &handshakeMessageServerHelloDone{},
 			},
 		},
 	})

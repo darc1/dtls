@@ -15,7 +15,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pion/dtls/v2/internal/net/dpipe"
+	"github.com/darc1/dtls/v2/internal/net/dpipe"
 	"github.com/pion/dtls/v2/pkg/crypto/selfsign"
 	"github.com/pion/transport/test"
 )
@@ -202,8 +202,8 @@ func TestSequenceNumberOverflow(t *testing.T) {
 					recordLayerHeader: recordLayerHeader{
 						protocolVersion: protocolVersion1_2,
 					},
-					content: &handshake{
-						handshakeMessage: &handshakeMessageClientHello{
+					content: &Handshake{
+						HandshakeMessage: &HandshakeMessageClientHello{
 							version:            protocolVersion1_2,
 							cookie:             make([]byte, 64),
 							cipherSuites:       defaultCipherSuites(),
@@ -1324,7 +1324,7 @@ func TestServerTimeout(t *testing.T) {
 		&cipherSuiteTLSEcdheRsaWithAes128GcmSha256{},
 	}
 
-	extensions := []extension{
+	extensions := []Extension{
 		&extensionSupportedSignatureAlgorithms{
 			signatureHashAlgorithms: []signatureHashAlgorithm{
 				{hashAlgorithmSHA256, signatureAlgorithmECDSA},
@@ -1348,18 +1348,18 @@ func TestServerTimeout(t *testing.T) {
 			sequenceNumber:  0,
 			protocolVersion: protocolVersion1_2,
 		},
-		content: &handshake{
+		content: &Handshake{
 			// sequenceNumber and messageSequence line up, may need to be re-evaluated
 			handshakeHeader: handshakeHeader{
 				messageSequence: 0,
 			},
-			handshakeMessage: &handshakeMessageClientHello{
+			HandshakeMessage: &HandshakeMessageClientHello{
 				version:            protocolVersion1_2,
 				cookie:             cookie,
 				random:             random,
 				cipherSuites:       cipherSuites,
 				compressionMethods: defaultCompressionMethods(),
-				extensions:         extensions,
+				Extensions:         extensions,
 			},
 		},
 	}
@@ -1466,8 +1466,8 @@ func TestProtocolVersionValidation(t *testing.T) {
 						recordLayerHeader: recordLayerHeader{
 							protocolVersion: protocolVersion1_2,
 						},
-						content: &handshake{
-							handshakeMessage: &handshakeMessageClientHello{
+						content: &Handshake{
+							HandshakeMessage: &HandshakeMessageClientHello{
 								version:            protocolVersion{0xfe, 0xff}, // try to downgrade
 								cookie:             cookie,
 								random:             random,
@@ -1484,8 +1484,8 @@ func TestProtocolVersionValidation(t *testing.T) {
 						recordLayerHeader: recordLayerHeader{
 							protocolVersion: protocolVersion1_2,
 						},
-						content: &handshake{
-							handshakeMessage: &handshakeMessageClientHello{
+						content: &Handshake{
+							HandshakeMessage: &HandshakeMessageClientHello{
 								version:            protocolVersion1_2,
 								cookie:             cookie,
 								random:             random,
@@ -1499,11 +1499,11 @@ func TestProtocolVersionValidation(t *testing.T) {
 							protocolVersion: protocolVersion1_2,
 							sequenceNumber:  1,
 						},
-						content: &handshake{
+						content: &Handshake{
 							handshakeHeader: handshakeHeader{
 								messageSequence: 1,
 							},
-							handshakeMessage: &handshakeMessageClientHello{
+							HandshakeMessage: &HandshakeMessageClientHello{
 								version:            protocolVersion{0xfe, 0xff}, // try to downgrade
 								cookie:             cookie,
 								random:             random,
@@ -1578,8 +1578,8 @@ func TestProtocolVersionValidation(t *testing.T) {
 						recordLayerHeader: recordLayerHeader{
 							protocolVersion: protocolVersion1_2,
 						},
-						content: &handshake{
-							handshakeMessage: &handshakeMessageHelloVerifyRequest{
+						content: &Handshake{
+							HandshakeMessage: &handshakeMessageHelloVerifyRequest{
 								version: protocolVersion1_2,
 								cookie:  cookie,
 							},
@@ -1590,11 +1590,11 @@ func TestProtocolVersionValidation(t *testing.T) {
 							protocolVersion: protocolVersion1_2,
 							sequenceNumber:  1,
 						},
-						content: &handshake{
+						content: &Handshake{
 							handshakeHeader: handshakeHeader{
 								messageSequence: 1,
 							},
-							handshakeMessage: &handshakeMessageServerHello{
+							HandshakeMessage: &handshakeMessageServerHello{
 								version:           protocolVersion{0xfe, 0xff}, // try to downgrade
 								random:            random,
 								cipherSuite:       &cipherSuiteTLSEcdheEcdsaWithAes128GcmSha256{},
@@ -1607,11 +1607,11 @@ func TestProtocolVersionValidation(t *testing.T) {
 							protocolVersion: protocolVersion1_2,
 							sequenceNumber:  2,
 						},
-						content: &handshake{
+						content: &Handshake{
 							handshakeHeader: handshakeHeader{
 								messageSequence: 2,
 							},
-							handshakeMessage: &handshakeMessageCertificate{},
+							HandshakeMessage: &handshakeMessageCertificate{},
 						},
 					},
 					{
@@ -1619,11 +1619,11 @@ func TestProtocolVersionValidation(t *testing.T) {
 							protocolVersion: protocolVersion1_2,
 							sequenceNumber:  3,
 						},
-						content: &handshake{
+						content: &Handshake{
 							handshakeHeader: handshakeHeader{
 								messageSequence: 3,
 							},
-							handshakeMessage: &handshakeMessageServerKeyExchange{
+							HandshakeMessage: &handshakeMessageServerKeyExchange{
 								ellipticCurveType:  ellipticCurveTypeNamedCurve,
 								namedCurve:         namedCurveX25519,
 								publicKey:          localKeypair.publicKey,
@@ -1638,11 +1638,11 @@ func TestProtocolVersionValidation(t *testing.T) {
 							protocolVersion: protocolVersion1_2,
 							sequenceNumber:  4,
 						},
-						content: &handshake{
+						content: &Handshake{
 							handshakeHeader: handshakeHeader{
 								messageSequence: 4,
 							},
-							handshakeMessage: &handshakeMessageServerHelloDone{},
+							HandshakeMessage: &handshakeMessageServerHelloDone{},
 						},
 					},
 				},
@@ -1732,11 +1732,11 @@ func TestMultipleHelloVerifyRequest(t *testing.T) {
 				sequenceNumber:  uint64(i),
 				protocolVersion: protocolVersion1_2,
 			},
-			content: &handshake{
+			content: &Handshake{
 				handshakeHeader: handshakeHeader{
 					messageSequence: uint16(i),
 				},
-				handshakeMessage: &handshakeMessageHelloVerifyRequest{
+				HandshakeMessage: &handshakeMessageHelloVerifyRequest{
 					version: protocolVersion1_2,
 					cookie:  cookie,
 				},
@@ -1779,7 +1779,7 @@ func TestMultipleHelloVerifyRequest(t *testing.T) {
 		if err := record.Unmarshal(resp[:n]); err != nil {
 			t.Fatal(err)
 		}
-		clientHello := record.content.(*handshake).handshakeMessage.(*handshakeMessageClientHello)
+		clientHello := record.content.(*Handshake).HandshakeMessage.(*HandshakeMessageClientHello)
 		if !bytes.Equal(clientHello.cookie, cookie) {
 			t.Fatalf("Wrong cookie, expected: %x, got: %x", clientHello.cookie, cookie)
 		}

@@ -15,14 +15,14 @@ type extensionSupportedPointFormats struct {
 	pointFormats []ellipticCurvePointFormat
 }
 
-func (e extensionSupportedPointFormats) extensionValue() extensionValue {
+func (e extensionSupportedPointFormats) ExtensionValue() ExtensionValue {
 	return extensionSupportedPointFormatsValue
 }
 
 func (e *extensionSupportedPointFormats) Marshal() ([]byte, error) {
 	out := make([]byte, extensionSupportedPointFormatsSize)
 
-	binary.BigEndian.PutUint16(out, uint16(e.extensionValue()))
+	binary.BigEndian.PutUint16(out, uint16(e.ExtensionValue()))
 	binary.BigEndian.PutUint16(out[2:], uint16(1+(len(e.pointFormats))))
 	out[4] = byte(len(e.pointFormats))
 
@@ -35,7 +35,7 @@ func (e *extensionSupportedPointFormats) Marshal() ([]byte, error) {
 func (e *extensionSupportedPointFormats) Unmarshal(data []byte) error {
 	if len(data) <= extensionSupportedPointFormatsSize {
 		return errBufferTooSmall
-	} else if extensionValue(binary.BigEndian.Uint16(data)) != e.extensionValue() {
+	} else if ExtensionValue(binary.BigEndian.Uint16(data)) != e.ExtensionValue() {
 		return errInvalidExtensionType
 	}
 

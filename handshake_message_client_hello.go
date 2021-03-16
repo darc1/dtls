@@ -11,23 +11,23 @@ client hello in response to a hello request or on its own
 initiative in order to renegotiate the security parameters in an
 existing connection.
 */
-type handshakeMessageClientHello struct {
+type HandshakeMessageClientHello struct {
 	version protocolVersion
 	random  handshakeRandom
 	cookie  []byte
 
 	cipherSuites       []cipherSuite
 	compressionMethods []*compressionMethod
-	extensions         []extension
+	Extensions         []Extension
 }
 
 const handshakeMessageClientHelloVariableWidthStart = 34
 
-func (h handshakeMessageClientHello) handshakeType() handshakeType {
+func (h HandshakeMessageClientHello) handshakeType() handshakeType {
 	return handshakeTypeClientHello
 }
 
-func (h *handshakeMessageClientHello) Marshal() ([]byte, error) {
+func (h *HandshakeMessageClientHello) Marshal() ([]byte, error) {
 	if len(h.cookie) > 255 {
 		return nil, errCookieTooLong
 	}
@@ -46,7 +46,7 @@ func (h *handshakeMessageClientHello) Marshal() ([]byte, error) {
 	out = append(out, encodeCipherSuites(h.cipherSuites)...)
 	out = append(out, encodeCompressionMethods(h.compressionMethods)...)
 
-	extensions, err := encodeExtensions(h.extensions)
+	extensions, err := encodeExtensions(h.Extensions)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +54,7 @@ func (h *handshakeMessageClientHello) Marshal() ([]byte, error) {
 	return append(out, extensions...), nil
 }
 
-func (h *handshakeMessageClientHello) Unmarshal(data []byte) error {
+func (h *HandshakeMessageClientHello) Unmarshal(data []byte) error {
 	if len(data) < 2+handshakeRandomLength {
 		return errBufferTooSmall
 	}
@@ -114,6 +114,6 @@ func (h *handshakeMessageClientHello) Unmarshal(data []byte) error {
 	if err != nil {
 		return err
 	}
-	h.extensions = extensions
+	h.Extensions = extensions
 	return nil
 }

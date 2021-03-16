@@ -21,7 +21,7 @@ func TestHandshakeMessageServerHello(t *testing.T) {
 		},
 		cipherSuite:       &cipherSuiteTLSEcdheEcdsaWithAes128GcmSha256{},
 		compressionMethod: compressionMethods()[compressionMethodNull],
-		extensions:        []extension{},
+		extensions:        []Extension{},
 	}
 
 	c := &handshakeMessageServerHello{}

@@ -119,13 +119,13 @@ func handleServerKeyExchange(_ flightConn, state *State, cfg *handshakeConfig, h
 }
 
 func flight3Generate(c flightConn, state *State, cache *handshakeCache, cfg *handshakeConfig) ([]*packet, *alert, error) {
-	extensions := []extension{
+	extensions := []Extension{
 		&extensionSupportedSignatureAlgorithms{
 			signatureHashAlgorithms: cfg.localSignatureSchemes,
 		},
 	}
 	if cfg.localPSKCallback == nil {
-		extensions = append(extensions, []extension{
+		extensions = append(extensions, []Extension{
 			&extensionSupportedEllipticCurves{
 				ellipticCurves: []namedCurve{namedCurveX25519, namedCurveP256, namedCurveP384},
 			},
@@ -149,7 +149,7 @@ func flight3Generate(c flightConn, state *State, cache *handshakeCache, cfg *han
 	}
 
 	if len(cfg.serverName) > 0 {
-		extensions = append(extensions, &extensionServerName{serverName: cfg.serverName})
+		extensions = append(extensions, &ExtensionServerName{ServerName: cfg.serverName})
 	}
 
 	return []*packet{
@@ -158,14 +158,14 @@ func flight3Generate(c flightConn, state *State, cache *handshakeCache, cfg *han
 				recordLayerHeader: recordLayerHeader{
 					protocolVersion: protocolVersion1_2,
 				},
-				content: &handshake{
-					handshakeMessage: &handshakeMessageClientHello{
+				content: &Handshake{
+					HandshakeMessage: &HandshakeMessageClientHello{
 						version:            protocolVersion1_2,
 						cookie:             state.cookie,
 						random:             state.localRandom,
 						cipherSuites:       cfg.localCipherSuites,
 						compressionMethods: defaultCompressionMethods(),
-						extensions:         extensions,
+						Extensions:         extensions,
 					},
 				},
 			},

@@ -13,14 +13,14 @@ type extensionSupportedSignatureAlgorithms struct {
 	signatureHashAlgorithms []signatureHashAlgorithm
 }
 
-func (e extensionSupportedSignatureAlgorithms) extensionValue() extensionValue {
+func (e extensionSupportedSignatureAlgorithms) ExtensionValue() ExtensionValue {
 	return extensionSupportedSignatureAlgorithmsValue
 }
 
 func (e *extensionSupportedSignatureAlgorithms) Marshal() ([]byte, error) {
 	out := make([]byte, extensionSupportedSignatureAlgorithmsHeaderSize)
 
-	binary.BigEndian.PutUint16(out, uint16(e.extensionValue()))
+	binary.BigEndian.PutUint16(out, uint16(e.ExtensionValue()))
 	binary.BigEndian.PutUint16(out[2:], uint16(2+(len(e.signatureHashAlgorithms)*2)))
 	binary.BigEndian.PutUint16(out[4:], uint16(len(e.signatureHashAlgorithms)*2))
 	for _, v := range e.signatureHashAlgorithms {
@@ -35,7 +35,7 @@ func (e *extensionSupportedSignatureAlgorithms) Marshal() ([]byte, error) {
 func (e *extensionSupportedSignatureAlgorithms) Unmarshal(data []byte) error {
 	if len(data) <= extensionSupportedSignatureAlgorithmsHeaderSize {
 		return errBufferTooSmall
-	} else if extensionValue(binary.BigEndian.Uint16(data)) != e.extensionValue() {
+	} else if ExtensionValue(binary.BigEndian.Uint16(data)) != e.ExtensionValue() {
 		return errInvalidExtensionType
 	}
 

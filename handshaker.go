@@ -206,7 +206,7 @@ func (s *handshakeFSM) prepare(ctx context.Context, c flightConn) (handshakeStat
 		if p.record.recordLayerHeader.epoch > nextEpoch {
 			nextEpoch = p.record.recordLayerHeader.epoch
 		}
-		if h, ok := p.record.content.(*handshake); ok {
+		if h, ok := p.record.content.(*Handshake); ok {
 			h.handshakeHeader.messageSequence = uint16(s.state.handshakeSendSequence)
 			s.state.handshakeSendSequence++
 		}

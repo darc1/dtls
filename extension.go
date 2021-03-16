@@ -5,25 +5,25 @@ import (
 )
 
 // https://www.iana.org/assignments/tls-extensiontype-values/tls-extensiontype-values.xhtml
-type extensionValue uint16
+type ExtensionValue uint16
 
 const (
-	extensionServerNameValue                   extensionValue = 0
-	extensionSupportedEllipticCurvesValue      extensionValue = 10
-	extensionSupportedPointFormatsValue        extensionValue = 11
-	extensionSupportedSignatureAlgorithmsValue extensionValue = 13
-	extensionUseSRTPValue                      extensionValue = 14
-	extensionUseExtendedMasterSecretValue      extensionValue = 23
+	extensionServerNameValue                   ExtensionValue = 0
+	extensionSupportedEllipticCurvesValue      ExtensionValue = 10
+	extensionSupportedPointFormatsValue        ExtensionValue = 11
+	extensionSupportedSignatureAlgorithmsValue ExtensionValue = 13
+	extensionUseSRTPValue                      ExtensionValue = 14
+	extensionUseExtendedMasterSecretValue      ExtensionValue = 23
 )
 
-type extension interface {
+type Extension interface {
 	Marshal() ([]byte, error)
 	Unmarshal(data []byte) error
 
-	extensionValue() extensionValue
+	ExtensionValue() ExtensionValue
 }
 
-func decodeExtensions(buf []byte) ([]extension, error) {
+func decodeExtensions(buf []byte) ([]Extension, error) {
 	if len(buf) < 2 {
 		return nil, errBufferTooSmall
 	}
@@ -32,8 +32,8 @@ func decodeExtensions(buf []byte) ([]extension, error) {
 		return nil, errLengthMismatch
 	}
 
-	extensions := []extension{}
-	unmarshalAndAppend := func(data []byte, e extension) error {
+	extensions := []Extension{}
+	unmarshalAndAppend := func(data []byte, e Extension) error {
 		err := e.Unmarshal(data)
 		if err != nil {
 			return err
@@ -47,9 +47,9 @@ func decodeExtensions(buf []byte) ([]extension, error) {
 			return nil, errBufferTooSmall
 		}
 		var err error
-		switch extensionValue(binary.BigEndian.Uint16(buf[offset:])) {
+		switch ExtensionValue(binary.BigEndian.Uint16(buf[offset:])) {
 		case extensionServerNameValue:
-			err = unmarshalAndAppend(buf[offset:], &extensionServerName{})
+			err = unmarshalAndAppend(buf[offset:], &ExtensionServerName{})
 		case extensionSupportedEllipticCurvesValue:
 			err = unmarshalAndAppend(buf[offset:], &extensionSupportedEllipticCurves{})
 		case extensionUseSRTPValue:
@@ -70,7 +70,7 @@ func decodeExtensions(buf []byte) ([]extension, error) {
 	return extensions, nil
 }
 
-func encodeExtensions(e []extension) ([]byte, error) {
+func encodeExtensions(e []Extension) ([]byte, error) {
 	extensions := []byte{}
 	for _, e := range e {
 		raw, err := e.Marshal()

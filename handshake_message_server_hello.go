@@ -17,7 +17,7 @@ type handshakeMessageServerHello struct {
 
 	cipherSuite       cipherSuite
 	compressionMethod *compressionMethod
-	extensions        []extension
+	extensions        []Extension
 }
 
 const handshakeMessageServerHelloVariableWidthStart = 2 + handshakeRandomLength
@@ -89,7 +89,7 @@ func (h *handshakeMessageServerHello) Unmarshal(data []byte) error {
 	}
 
 	if len(data) <= currOffset {
-		h.extensions = []extension{}
+		h.extensions = []Extension{}
 		return nil
 	}
 

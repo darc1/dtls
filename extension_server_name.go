@@ -6,35 +6,35 @@ import (
 	"golang.org/x/crypto/cryptobyte"
 )
 
-const extensionServerNameTypeDNSHostName = 0
+const ExtensionServerNameTypeDNSHostName = 0
 
-type extensionServerName struct {
-	serverName string
+type ExtensionServerName struct {
+	ServerName string
 }
 
-func (e extensionServerName) extensionValue() extensionValue {
+func (e ExtensionServerName) ExtensionValue() ExtensionValue {
 	return extensionServerNameValue
 }
 
-func (e *extensionServerName) Marshal() ([]byte, error) {
+func (e *ExtensionServerName) Marshal() ([]byte, error) {
 	var b cryptobyte.Builder
-	b.AddUint16(uint16(e.extensionValue()))
+	b.AddUint16(uint16(e.ExtensionValue()))
 	b.AddUint16LengthPrefixed(func(b *cryptobyte.Builder) {
 		b.AddUint16LengthPrefixed(func(b *cryptobyte.Builder) {
-			b.AddUint8(extensionServerNameTypeDNSHostName)
+			b.AddUint8(ExtensionServerNameTypeDNSHostName)
 			b.AddUint16LengthPrefixed(func(b *cryptobyte.Builder) {
-				b.AddBytes([]byte(e.serverName))
+				b.AddBytes([]byte(e.ServerName))
 			})
 		})
 	})
 	return b.Bytes()
 }
 
-func (e *extensionServerName) Unmarshal(data []byte) error {
+func (e *ExtensionServerName) Unmarshal(data []byte) error {
 	s := cryptobyte.String(data)
 	var extension uint16
 	s.ReadUint16(&extension)
-	if extensionValue(extension) != e.extensionValue() {
+	if ExtensionValue(extension) != e.ExtensionValue() {
 		return errInvalidExtensionType
 	}
 
@@ -53,16 +53,16 @@ func (e *extensionServerName) Unmarshal(data []byte) error {
 			serverName.Empty() {
 			return errInvalidSNIFormat
 		}
-		if nameType != extensionServerNameTypeDNSHostName {
+		if nameType != ExtensionServerNameTypeDNSHostName {
 			continue
 		}
-		if len(e.serverName) != 0 {
+		if len(e.ServerName) != 0 {
 			// Multiple names of the same name_type are prohibited.
 			return errInvalidSNIFormat
 		}
-		e.serverName = string(serverName)
+		e.ServerName = string(serverName)
 		// An SNI value may not include a trailing dot.
-		if strings.HasSuffix(e.serverName, ".") {
+		if strings.HasSuffix(e.ServerName, ".") {
 			return errInvalidSNIFormat
 		}
 	}

@@ -14,7 +14,7 @@ func TestHandshakeMessageClientHello(t *testing.T) {
 		0xd6, 0x6c, 0x57, 0xd0, 0x0e, 0x32, 0x85, 0x76, 0x18, 0xde, 0xd8, 0x00, 0x04, 0xc0, 0x2b,
 		0xc0, 0x0a, 0x01, 0x00, 0x00, 0x08, 0x00, 0x0a, 0x00, 0x04, 0x00, 0x02, 0x00, 0x1d,
 	}
-	parsedClientHello := &handshakeMessageClientHello{
+	parsedClientHello := &HandshakeMessageClientHello{
 		version: protocolVersion{0xFE, 0xFD},
 		random: handshakeRandom{
 			time.Unix(3056586332, 0),
@@ -28,12 +28,12 @@ func TestHandshakeMessageClientHello(t *testing.T) {
 		compressionMethods: []*compressionMethod{
 			compressionMethods()[compressionMethodNull],
 		},
-		extensions: []extension{
+		Extensions: []Extension{
 			&extensionSupportedEllipticCurves{ellipticCurves: []namedCurve{namedCurveX25519}},
 		},
 	}
 
-	c := &handshakeMessageClientHello{}
+	c := &HandshakeMessageClientHello{}
 	if err := c.Unmarshal(rawClientHello); err != nil {
 		t.Error(err)
 	} else if !reflect.DeepEqual(c, parsedClientHello) {

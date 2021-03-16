@@ -10,8 +10,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/pion/dtls/v2/internal/closer"
-	"github.com/pion/dtls/v2/internal/net/connctx"
+	"github.com/darc1/dtls/v2/internal/closer"
+	"github.com/darc1/dtls/v2/internal/net/connctx"
 	"github.com/pion/logging"
 	"github.com/pion/transport/deadline"
 	"github.com/pion/transport/replaydetector"
@@ -44,7 +44,7 @@ func invalidKeyingLabels() map[string]bool {
 type Conn struct {
 	lock           sync.RWMutex     // Internal lock (must not be public)
 	nextConn       connctx.ConnCtx  // Embedded Conn, typically a udpconn we read/write from
-	fragmentBuffer *fragmentBuffer  // out-of-order and missing fragment handling
+	fragmentBuffer *FragmentBuffer  // out-of-order and missing fragment handling
 	handshakeCache *handshakeCache  // caching of handshake messages for verifyData generation
 	decrypted      chan interface{} // Decrypted Application Data or error, pull by calling `Read`
 
@@ -120,7 +120,7 @@ func createConn(ctx context.Context, nextConn net.Conn, config *Config, isClient
 
 	c := &Conn{
 		nextConn:                connctx.New(nextConn),
-		fragmentBuffer:          newFragmentBuffer(),
+		fragmentBuffer:          NewFragmentBuffer(),
 		handshakeCache:          newHandshakeCache(),
 		maximumTransmissionUnit: mtu,
 
@@ -370,7 +370,7 @@ func (c *Conn) writePackets(ctx context.Context, pkts []*packet) error {
 	var rawPackets [][]byte
 
 	for _, p := range pkts {
-		if h, ok := p.record.content.(*handshake); ok {
+		if h, ok := p.record.content.(*Handshake); ok {
 			handshakeRaw, err := p.record.Marshal()
 			if err != nil {
 				return err
@@ -455,7 +455,7 @@ func (c *Conn) processPacket(p *packet) ([]byte, error) {
 	return rawPacket, nil
 }
 
-func (c *Conn) processHandshakePacket(p *packet, h *handshake) ([][]byte, error) {
+func (c *Conn) processHandshakePacket(p *packet, h *Handshake) ([][]byte, error) {
 	rawPackets := make([][]byte, 0)
 
 	handshakeFragments, err := c.fragmentHandshake(h)
@@ -503,8 +503,8 @@ func (c *Conn) processHandshakePacket(p *packet, h *handshake) ([][]byte, error)
 	return rawPackets, nil
 }
 
-func (c *Conn) fragmentHandshake(h *handshake) ([][]byte, error) {
-	content, err := h.handshakeMessage.Marshal()
+func (c *Conn) fragmentHandshake(h *Handshake) ([][]byte, error) {
+	content, err := h.HandshakeMessage.Marshal()
 	if err != nil {
 		return nil, err
 	}
@@ -685,7 +685,7 @@ func (c *Conn) handleIncomingPacket(buf []byte, enqueue bool) (bool, *alert, err
 		}
 	}
 
-	isHandshake, err := c.fragmentBuffer.push(append([]byte{}, buf...))
+	isHandshake, err := c.fragmentBuffer.Push(append([]byte{}, buf...))
 	if err != nil {
 		// Decode error must be silently discarded
 		// [RFC6347 Section-4.1.2.7]
@@ -693,8 +693,8 @@ func (c *Conn) handleIncomingPacket(buf []byte, enqueue bool) (bool, *alert, err
 		return false, nil, nil
 	} else if isHandshake {
 		markPacketAsValid()
-		for out, epoch := c.fragmentBuffer.pop(); out != nil; out, epoch = c.fragmentBuffer.pop() {
-			rawHandshake := &handshake{}
+		for out, epoch := c.fragmentBuffer.Pop(); out != nil; out, epoch = c.fragmentBuffer.Pop() {
+			rawHandshake := &Handshake{}
 			if err := rawHandshake.Unmarshal(out); err != nil {
 				c.log.Debugf("%s: handshake parse failed: %s", srvCliStr(c.state.isClient), err)
 				continue

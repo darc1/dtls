@@ -74,9 +74,9 @@ func TestFragmentBuffer(t *testing.T) {
 			Epoch: 0,
 		},
 	} {
-		fragmentBuffer := newFragmentBuffer()
+		fragmentBuffer := NewFragmentBuffer()
 		for _, frag := range test.In {
-			status, err := fragmentBuffer.push(frag)
+			status, err := fragmentBuffer.Push(frag)
 			if err != nil {
 				t.Error(err)
 			} else if !status {
@@ -85,7 +85,7 @@ func TestFragmentBuffer(t *testing.T) {
 		}
 
 		for _, expected := range test.Expected {
-			out, epoch := fragmentBuffer.pop()
+			out, epoch := fragmentBuffer.Pop()
 			if !reflect.DeepEqual(out, expected) {
 				t.Errorf("fragmentBuffer '%s' push/pop: got % 02x, want % 02x", test.Name, out, expected)
 			}
@@ -94,7 +94,7 @@ func TestFragmentBuffer(t *testing.T) {
 			}
 		}
 
-		if frag, _ := fragmentBuffer.pop(); frag != nil {
+		if frag, _ := fragmentBuffer.Pop(); frag != nil {
 			t.Errorf("fragmentBuffer popped single buffer multiple times for '%s'", test.Name)
 		}
 	}

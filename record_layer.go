@@ -56,7 +56,7 @@ func (r *recordLayer) Unmarshal(data []byte) error {
 	case contentTypeAlert:
 		r.content = &alert{}
 	case contentTypeHandshake:
-		r.content = &handshake{}
+		r.content = &Handshake{}
 	case contentTypeApplicationData:
 		r.content = &applicationData{}
 	default:

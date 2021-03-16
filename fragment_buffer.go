@@ -6,21 +6,21 @@ type fragment struct {
 	data              []byte
 }
 
-type fragmentBuffer struct {
+type FragmentBuffer struct {
 	// map of MessageSequenceNumbers that hold slices of fragments
 	cache map[uint16][]*fragment
 
 	currentMessageSequenceNumber uint16
 }
 
-func newFragmentBuffer() *fragmentBuffer {
-	return &fragmentBuffer{cache: map[uint16][]*fragment{}}
+func NewFragmentBuffer() *FragmentBuffer {
+	return &FragmentBuffer{cache: map[uint16][]*fragment{}}
 }
 
-// Attempts to push a DTLS packet to the fragmentBuffer
+// Attempts to Push a DTLS packet to the fragmentBuffer
 // when it returns true it means the fragmentBuffer has inserted and the buffer shouldn't be handled
 // when an error returns it is fatal, and the DTLS connection should be stopped
-func (f *fragmentBuffer) push(buf []byte) (bool, error) {
+func (f *FragmentBuffer) Push(buf []byte) (bool, error) {
 	frag := new(fragment)
 	if err := frag.recordLayerHeader.Unmarshal(buf); err != nil {
 		return false, err
@@ -56,7 +56,7 @@ func (f *fragmentBuffer) push(buf []byte) (bool, error) {
 	return true, nil
 }
 
-func (f *fragmentBuffer) pop() (content []byte, epoch uint16) {
+func (f *FragmentBuffer) Pop() (content []byte, epoch uint16) {
 	frags, ok := f.cache[f.currentMessageSequenceNumber]
 	if !ok {
 		return nil, 0

@@ -3,20 +3,20 @@ package dtls
 import "testing"
 
 func TestServerName(t *testing.T) {
-	extension := extensionServerName{serverName: "test.domain"}
+	extension := ExtensionServerName{ServerName: "test.domain"}
 
 	raw, err := extension.Marshal()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	newExtension := extensionServerName{}
+	newExtension := ExtensionServerName{}
 	err = newExtension.Unmarshal(raw)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if newExtension.serverName != extension.serverName {
-		t.Errorf("extensionServerName marshal: got %s expected %s", newExtension.serverName, extension.serverName)
+	if newExtension.ServerName != extension.ServerName {
+		t.Errorf("extensionServerName marshal: got %s expected %s", newExtension.ServerName, extension.ServerName)
 	}
 }

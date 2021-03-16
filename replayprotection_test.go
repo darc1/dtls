@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pion/dtls/v2/internal/net/dpipe"
+	"github.com/darc1/dtls/v2/internal/net/dpipe"
 	"github.com/pion/transport/test"
 )
 

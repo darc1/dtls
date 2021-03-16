@@ -15,10 +15,10 @@ func flight0Parse(ctx context.Context, c flightConn, state *State, cache *handsh
 	}
 	state.handshakeRecvSequence = seq
 
-	var clientHello *handshakeMessageClientHello
+	var clientHello *HandshakeMessageClientHello
 
 	// Validate type
-	if clientHello, ok = msgs[handshakeTypeClientHello].(*handshakeMessageClientHello); !ok {
+	if clientHello, ok = msgs[handshakeTypeClientHello].(*HandshakeMessageClientHello); !ok {
 		return 0, &alert{alertLevelFatal, alertInternalError}, nil
 	}
 
@@ -34,7 +34,7 @@ func flight0Parse(ctx context.Context, c flightConn, state *State, cache *handsh
 
 	state.cipherSuite = clientHello.cipherSuites[0]
 
-	for _, extension := range clientHello.extensions {
+	for _, extension := range clientHello.Extensions {
 		switch e := extension.(type) {
 		case *extensionSupportedEllipticCurves:
 			if len(e.ellipticCurves) == 0 {
@@ -51,8 +51,8 @@ func flight0Parse(ctx context.Context, c flightConn, state *State, cache *handsh
 			if cfg.extendedMasterSecret != DisableExtendedMasterSecret {
 				state.extendedMasterSecret = true
 			}
-		case *extensionServerName:
-			state.serverName = e.serverName // remote server name
+		case *ExtensionServerName:
+			state.serverName = e.ServerName // remote server name
 		}
 	}
 

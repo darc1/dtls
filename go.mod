@@ -1,6 +1,7 @@
-module github.com/pion/dtls/v2
+module github.com/darc1/dtls/v2
 
 require (
+	github.com/pion/dtls/v2 v2.0.3
 	github.com/pion/logging v0.2.2
 	github.com/pion/transport v0.10.1
 	github.com/pion/udp v0.1.0
@@ -10,3 +11,5 @@ require (
 )
 
 go 1.13
+
+replace github.com/pion/dtls/v2 => github.com/darc1/dtls/v2 v2.0.3

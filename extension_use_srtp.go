@@ -11,14 +11,14 @@ type extensionUseSRTP struct {
 	protectionProfiles []SRTPProtectionProfile
 }
 
-func (e extensionUseSRTP) extensionValue() extensionValue {
+func (e extensionUseSRTP) ExtensionValue() ExtensionValue {
 	return extensionUseSRTPValue
 }
 
 func (e *extensionUseSRTP) Marshal() ([]byte, error) {
 	out := make([]byte, extensionUseSRTPHeaderSize)
 
-	binary.BigEndian.PutUint16(out, uint16(e.extensionValue()))
+	binary.BigEndian.PutUint16(out, uint16(e.ExtensionValue()))
 	binary.BigEndian.PutUint16(out[2:], uint16(2+(len(e.protectionProfiles)*2)+ /* MKI Length */ 1))
 	binary.BigEndian.PutUint16(out[4:], uint16(len(e.protectionProfiles)*2))
 
@@ -34,7 +34,7 @@ func (e *extensionUseSRTP) Marshal() ([]byte, error) {
 func (e *extensionUseSRTP) Unmarshal(data []byte) error {
 	if len(data) <= extensionUseSRTPHeaderSize {
 		return errBufferTooSmall
-	} else if extensionValue(binary.BigEndian.Uint16(data)) != e.extensionValue() {
+	} else if ExtensionValue(binary.BigEndian.Uint16(data)) != e.ExtensionValue() {
 		return errInvalidExtensionType
 	}
 

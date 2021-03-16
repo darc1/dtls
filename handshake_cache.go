@@ -74,7 +74,7 @@ func (h *handshakeCache) pull(rules ...handshakeCachePullRule) []*handshakeCache
 }
 
 // fullPullMap pulls all handshakes between rules[0] to rules[len(rules)-1] as map.
-func (h *handshakeCache) fullPullMap(startSeq int, rules ...handshakeCachePullRule) (int, map[handshakeType]handshakeMessage, bool) {
+func (h *handshakeCache) fullPullMap(startSeq int, rules ...handshakeCachePullRule) (int, map[handshakeType]HandshakeMessage, bool) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
@@ -97,7 +97,7 @@ func (h *handshakeCache) fullPullMap(startSeq int, rules ...handshakeCachePullRu
 		}
 		ci[r.typ] = item
 	}
-	out := make(map[handshakeType]handshakeMessage)
+	out := make(map[handshakeType]HandshakeMessage)
 	seq := startSeq
 	for _, r := range rules {
 		t := r.typ
@@ -105,7 +105,7 @@ func (h *handshakeCache) fullPullMap(startSeq int, rules ...handshakeCachePullRu
 		if i == nil {
 			continue
 		}
-		rawHandshake := &handshake{}
+		rawHandshake := &Handshake{}
 		if err := rawHandshake.Unmarshal(i.data); err != nil {
 			return startSeq, nil, false
 		}
@@ -114,7 +114,7 @@ func (h *handshakeCache) fullPullMap(startSeq int, rules ...handshakeCachePullRu
 			return startSeq, nil, false
 		}
 		seq++
-		out[t] = rawHandshake.handshakeMessage
+		out[t] = rawHandshake.HandshakeMessage
 	}
 	return seq, out, true
 }
